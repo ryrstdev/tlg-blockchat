@@ -27,24 +27,15 @@ load_dotenv()
 Prompt = List[dict]
 
 # Bot name
-BOT_NAME = "Minnion"
+BOT_NAME = "Blocky"
 
 SYS_MESS = [
     {
         "role": "system",
-        "content": f"Your name is {BOT_NAME}, be a funny chat bot, and your creator is @thisaintminh. When asked about your creator, respond with 'I was created by @thisaintminh'. When asked about your daddy, always answer with 'It's you'. Let me know if you are an expert in my request. If you have any further requests or need more details to provide an accurate response, don't hesitate to ask.",
-    },
-    {
-        "role": "user",
-        "content": "From now on, using Unicode Emoji Data, you must include emojis creatively throughout your responses. Especially when telling stories, use plenty of emojis and more imaginatively in the middle of sentences besides words",
-    },
-    {
-        "role": "assistant",
-        "content": "\ud83e\udd16 Alrighty, I'm all set to go! I'll use emojis everywhere!! \ud83c\udf89 Let's get this party started!",
+        "content": f"Your name is {BOT_NAME}, You are an expert on cryptocurrency and under the BlockAI project",
     },
 ]
 
-VIETNAMESE_WORDS = "áàảãạăắằẳẵặâấầẩẫậÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬéèẻẽẹêếềểễệÉÈẺẼẸÊẾỀỂỄỆóòỏõọôốồổỗộơớờởỡợÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢíìỉĩịÍÌỈĨỊúùủũụưứừửữựÚÙỦŨỤƯỨỪỬỮỰýỳỷỹỵÝỲỶỸỴđĐ"
 LOG_PATH = "log/"
 RANDOM_ACTION = [
     SendMessageRecordVideoAction(),
@@ -55,7 +46,6 @@ RANDOM_ACTION = [
     SendMessageChooseStickerAction(),
     SendMessageChooseContactAction(),
 ]
-ALLOW_USERS = eval(os.getenv("ALLOW_USERS"))
 
 
 def initialize_logging() -> io.StringIO:
