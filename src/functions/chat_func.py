@@ -5,6 +5,8 @@ import os
 from typing import List, Tuple
 
 import openai
+from openai import OpenAI
+
 from src.utils import (
     LOG_PATH,
     SYS_MESS,
@@ -24,8 +26,10 @@ async def over_token(
             f"**Reach {num_tokens} tokens**, exceeds 4096, creating new chat"
         )
         prompt.append({"role": "user", "content": "summarize this conversation"})
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo", messages=prompt
+        client = OpenAI()
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=prompt
         )
         response = completion.choices[0].message.content
         data = {"messages": SYS_MESS}
@@ -80,13 +84,15 @@ async def start_and_check(
 
 def get_response(prompt: Prompt, filename: str) -> List[str]:
     try:
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo", messages=prompt
+        client = OpenAI()
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=prompt
         )
         result = completion.choices[0].message
         num_tokens = completion.usage.total_tokens
         responses = f"{result.content}\n\n__({num_tokens} tokens used)__"
-        prompt.append(result)
+        prompt.append({"role": result.role, "content": result.content})
         data = {"messages": prompt}
         with open(filename, "w") as f:
             json.dump(data, f, indent=4)
