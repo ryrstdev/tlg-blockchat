@@ -8,10 +8,8 @@ from telethon import TelegramClient
 from telethon.errors.rpcerrorlist import UnauthorizedError
 
 from src.handlers import (
-    bash_handler,
     clear_handler,
     group_chat_handler,
-    search_handler,
     security_check,
     user_chat_handler,
 )
