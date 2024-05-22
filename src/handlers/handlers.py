@@ -7,7 +7,7 @@ from telethon.tl.functions.messages import SetTypingRequest
 from telethon.tl.types import SendMessageTypingAction
 
 from src.functions.chat_func import get_response, process_and_send_mess, start_and_check
-from src.utils import ALLOW_USERS, RANDOM_ACTION, check_chat_type
+from src.utils import RANDOM_ACTION, check_chat_type
 
 
 @register(NewMessage())
