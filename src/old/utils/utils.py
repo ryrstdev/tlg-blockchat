@@ -27,17 +27,25 @@ load_dotenv()
 Prompt = List[dict]
 
 # Bot name
-BOT_NAME = "Blocky"
+BOT_NAME = "Minnion"
 
 SYS_MESS = [
     {
         "role": "system",
-        "content": "Your name is Blocky, the chatbot assistant. Your knowledge is mainly with cryptocurrency especially related to solana",
+        "content": f"Your name is {BOT_NAME}, be a funny chat bot, and your creator is @thisaintminh. When asked about your creator, respond with 'I was created by @thisaintminh'. When asked about your daddy, always answer with 'It's you'. Let me know if you are an expert in my request. If you have any further requests or need more details to provide an accurate response, don't hesitate to ask.",
+    },
+    {
+        "role": "user",
+        "content": "From now on, using Unicode Emoji Data, you must include emojis creatively throughout your responses. Especially when telling stories, use plenty of emojis and more imaginatively in the middle of sentences besides words",
+    },
+    {
+        "role": "assistant",
+        "content": "\ud83e\udd16 Alrighty, I'm all set to go! I'll use emojis everywhere!! \ud83c\udf89 Let's get this party started!",
     },
 ]
 
-#VIETNAMESE_WORDS = "áàảãạăắằẳẵặâấầẩẫậÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬéèẻẽẹêếềểễệÉÈẺẼẸÊẾỀỂỄỆóòỏõọôốồổỗộơớờởỡợÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢíìỉĩịÍÌỈĨỊúùủũụưứừửữựÚÙỦŨỤƯỨỪỬỮỰýỳỷỹỵÝỲỶỸỴđĐ"
-LOG_PATH = "log/"
+VIETNAMESE_WORDS = "áàảãạăắằẳẵặâấầẩẫậÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬéèẻẽẹêếềểễệÉÈẺẼẸÊẾỀỂỄỆóòỏõọôốồổỗộơớờởỡợÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢíìỉĩịÍÌỈĨỊúùủũụưứừửữựÚÙỦŨỤƯỨỪỬỮỰýỳỷỹỵÝỲỶỸỴđĐ"
+LOG_PATH = "./log/"
 RANDOM_ACTION = [
     SendMessageRecordVideoAction(),
     SendMessageRecordRoundAction(),
@@ -47,7 +55,7 @@ RANDOM_ACTION = [
     SendMessageChooseStickerAction(),
     SendMessageChooseContactAction(),
 ]
-#ALLOW_USERS = eval(os.getenv("ALLOW_USERS"))
+# ALLOW_USERS = eval(os.getenv("ALLOW_USERS"))
 
 
 def initialize_logging() -> io.StringIO:
@@ -90,25 +98,27 @@ async def check_chat_type(event: NewMessage):
 
 async def read_existing_conversation(chat_id: int) -> Tuple[int, int, str, Prompt]:
     try:
-        logging.info(f"{LOG_PATH}{chat_id}_session.json")
         with open(f"{LOG_PATH}{chat_id}_session.json", "r") as f:
             file_num = json.load(f)["session"]
-        filename = f"{LOG_PATH}chats/{chat_id}_{file_num}.json"
-        logging.info(filename)
+        # filename = 
+        #with open(filename, "r") as f:
+        #    data = json.load(f)
+        
         # Create .json file in case of new chat
-        if not os.path.exists(filename):
+        if not os.path.exists(f"{LOG_PATH}chats/{chat_id}_{file_num}.json"):
             data = {"messages": SYS_MESS}
-            with open(filename, "w") as f:
+            with open(f"{LOG_PATH}chats/{chat_id}_{file_num}.json", "w") as f:
                 json.dump(data, f, indent=4)
-        with open(filename, "r") as f:
+        with open(f"{LOG_PATH}chats/{chat_id}_{file_num}.json", "r") as f:
             data = json.load(f)
-        prompts = []
+        logging.info("file is " + filename)
+        prompt = []
         for item in data["messages"]:
-            prompts.append(item)
-        logging.debug(f"Successfully read conversation {filename}")
+            prompt.append(item)
+        logging.debug(f"Successfully read conversation {f"{LOG_PATH}chats/{chat_id}_{file_num}.json"}")
     except Exception as e:
         logging.error(f"Error occurred: {e}")
-    return file_num, filename, prompts
+    return file_num, f"{LOG_PATH}chats/{chat_id}_{file_num}.json", prompt
 
 
 def num_tokens_from_messages(

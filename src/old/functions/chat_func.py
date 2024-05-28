@@ -5,9 +5,6 @@ import os
 from typing import List, Tuple
 
 import openai
-from openai import OpenAI
-from langchain_openai import ChatOpenAI
-
 from src.utils import (
     LOG_PATH,
     SYS_MESS,
@@ -27,11 +24,9 @@ async def over_token(
             f"**Reach {num_tokens} tokens**, exceeds 4096, creating new chat"
         )
         prompt.append({"role": "user", "content": "summarize this conversation"})
-        client = OpenAI(
-            base_url="https://blockchatapi.azurewebsites.net/" 
-        )
+        client = OpenAI()
         completion = client.chat.completions.create(
-            model="gpt-1337-turbo-pro-max",
+            model="gpt-3.5-turbo",
             messages=prompt
         )
         response = completion.choices[0].message.content
@@ -48,17 +43,16 @@ async def over_token(
 async def start_and_check(
     event: NewMessage, message: str, chat_id: int
 ) -> Tuple[str, Prompt]:
+    logging.info("chat is " + message)
     try:
         if not os.path.exists(f"{LOG_PATH}{chat_id}_session.json"):
             data = {"session": 1}
             with open(f"{LOG_PATH}{chat_id}_session.json", "w") as f:
                 json.dump(data, f)
         while True:
-            
             file_num, filename, prompt = await read_existing_conversation(chat_id)
             prompt.append({"role": "user", "content": message})
-            #num_tokens = num_tokens_from_messages(prompt)
-            num_tokens = 0;
+            num_tokens = num_tokens_from_messages(prompt)
             if num_tokens > 4096:
                 logging.warn("Number of tokens exceeds 4096 limit, creating new chat")
                 file_num += 1
@@ -89,28 +83,22 @@ async def start_and_check(
 
 def get_response(prompt: Prompt, filename: str) -> List[str]:
     try:
-        #client = OpenAI()
-        client = OpenAI(
-            base_url="https://blockchatapi.azurewebsites.net/"
-        )
+        client = OpenAI()
         completion = client.chat.completions.create(
-            model="gpt-1337-turbo-pro-max",
+            model="gpt-3.5-turbo",
             messages=prompt
         )
-        logging.info(completion.choices[0].message)
         result = completion.choices[0].message
-        #num_tokens = completion.usage.total_tokens
-        num_tokens = 0
-        #responses = f"{result.content}\n\n__({num_tokens} tokens used)__"
-        responses = f"{result.content}"
-        prompt.append({"role": result.role, "content": result.content})
+        num_tokens = completion.usage.total_tokens
+        responses = f"{result.content}\n\n__({num_tokens} tokens used)__"
+        prompt.append(result)
         data = {"messages": prompt}
         with open(filename, "w") as f:
             json.dump(data, f, indent=4)
         logging.debug("Received response from openai")
     except Exception as e:
-        responses = "💩 Blocky is being stupid, please try again "
-        logging.error(f"Error occurred while getting response from Blocky: {e}")
+        responses = "💩 OpenAI is being stupid, please try again "
+        logging.error(f"Error occurred while getting response from openai: {e}")
     return responses
 
 
