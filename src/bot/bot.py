@@ -10,7 +10,9 @@ from telethon.errors.rpcerrorlist import UnauthorizedError
 from src.handlers import (
 #    bash_handler,
     clear_handler,
-    group_chat_handler,
+    start_handler,
+#    cls_handler,
+#    group_chat_handler,
 #    search_handler,
     security_check,
     user_chat_handler,
@@ -54,8 +56,11 @@ async def bot() -> None:
         # Clear chat history feature
         client.add_event_handler(clear_handler)
 
+        client.add_event_handler(start_handler)
+
+
         # User and group chat
-        client.add_event_handler(group_chat_handler)
+        #client.add_event_handler(group_chat_handler)
         client.add_event_handler(user_chat_handler)
 
         print("Bot is running")

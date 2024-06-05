@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from typing import List, Tuple
+from datetime import datetime
 
 import openai
 from openai import OpenAI
@@ -44,43 +45,37 @@ async def over_token(
         logging.error(f"Error occurred: {e}")
         await event.reply("An error occurred: {}".format(str(e)))
 
+async def generate_sid(
+    event: NewMessage, message: str, chat_id: int
+) -> Tuple[str, Prompt]:
+    try:
+        curr_dt = datetime.now()
+        dt = curr_dt.strftime("%Y%m%d%H%M%S")
+        sess_id = f"{chat_id}_{dt}"
+        data = {"session": sess_id}
+        with open(f"{LOG_PATH}{chat_id}_session.json", "w") as f:
+            json.dump(data, f)
+        logging.debug(f"Done generating new session")
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
+    return sess_id
+
 
 async def start_and_check(
     event: NewMessage, message: str, chat_id: int
 ) -> Tuple[str, Prompt]:
     try:
+        prompt = []
         if not os.path.exists(f"{LOG_PATH}{chat_id}_session.json"):
-            data = {"session": 1}
-            with open(f"{LOG_PATH}{chat_id}_session.json", "w") as f:
-                json.dump(data, f)
-        while True:
-            
-            file_num, filename, prompt = await read_existing_conversation(chat_id)
-            prompt.append({"role": "user", "content": message})
-            #num_tokens = num_tokens_from_messages(prompt)
-            num_tokens = 0;
-            if num_tokens > 4096:
-                logging.warn("Number of tokens exceeds 4096 limit, creating new chat")
-                file_num += 1
-                await event.reply(
-                    f"**Reach {num_tokens} tokens**, exceeds 4096, clear old chat, creating new chat"
-                )
-                data = {"session": file_num}
-                with open(f"{LOG_PATH}{chat_id}_session.json", "w") as f:
-                    json.dump(data, f)
-                continue
-            elif num_tokens > 4079:
-                logging.warn(
-                    "Number of tokens nearly exceeds 4096 limit, summarizing old chats"
-                )
-                file_num += 1
-                data = {"session": file_num}
-                with open(f"{LOG_PATH}{chat_id}_session.json", "w") as f:
-                    json.dump(data, f)
-                await over_token(num_tokens, event, prompt, filename)
-                continue
-            else:
-                break
+            str_ch = generate_sid(event,message,chat_id)
+        else:
+            with open(f"{LOG_PATH}{chat_id}_session.json", "r") as f:
+                data = json.load(f)
+            str_ch = data["session"]
+        filename = f"{LOG_PATH}chats/{chat_id}_{str_ch}.json"
+        logging.info(f"Session ID used {str_ch}")
+        # file_num, filename, prompt = await read_existing_conversation(chat_id)
+        prompt.append({"role": "user", "content": message, "session_id": str_ch})
         logging.debug(f"Done start and check")
     except Exception as e:
         logging.error(f"Error occurred: {e}")
@@ -99,10 +94,10 @@ def get_response(prompt: Prompt, filename: str) -> List[str]:
         )
         logging.info(completion.choices[0].message)
         result = completion.choices[0].message
-        #num_tokens = completion.usage.total_tokens
-        num_tokens = 0
-        #responses = f"{result.content}\n\n__({num_tokens} tokens used)__"
-        responses = f"{result.content}"
+        num_tokens = completion.usage.total_tokens
+        #num_tokens = 0
+        responses = f"{result.content}\n\n__({num_tokens} tokens used)__"
+        #responses = f"{result.content}"
         prompt.append({"role": result.role, "content": result.content})
         data = {"messages": prompt}
         with open(filename, "w") as f:

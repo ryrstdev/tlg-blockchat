@@ -29,14 +29,7 @@ Prompt = List[dict]
 # Bot name
 BOT_NAME = "Blocky"
 
-SYS_MESS = [
-    {
-        "role": "system",
-        "content": "Your name is Blocky, the chatbot assistant. Your knowledge is mainly with cryptocurrency especially related to solana",
-    },
-]
-
-#VIETNAMESE_WORDS = "áàảãạăắằẳẵặâấầẩẫậÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬéèẻẽẹêếềểễệÉÈẺẼẸÊẾỀỂỄỆóòỏõọôốồổỗộơớờởỡợÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢíìỉĩịÍÌỈĨỊúùủũụưứừửữựÚÙỦŨỤƯỨỪỬỮỰýỳỷỹỵÝỲỶỸỴđĐ"
+SYS_MESS = []
 LOG_PATH = "log/"
 RANDOM_ACTION = [
     SendMessageRecordVideoAction(),
@@ -96,15 +89,15 @@ async def read_existing_conversation(chat_id: int) -> Tuple[int, int, str, Promp
         filename = f"{LOG_PATH}chats/{chat_id}_{file_num}.json"
         logging.info(filename)
         # Create .json file in case of new chat
-        if not os.path.exists(filename):
-            data = {"messages": SYS_MESS}
-            with open(filename, "w") as f:
-                json.dump(data, f, indent=4)
-        with open(filename, "r") as f:
-            data = json.load(f)
+        # if not os.path.exists(filename):
+        #     data = {"messages": SYS_MESS}
+        #     with open(filename, "w") as f:
+        #         json.dump(data, f, indent=4)
+        # with open(filename, "r") as f:
+        #     data = json.load(f)
         prompts = []
-        for item in data["messages"]:
-            prompts.append(item)
+        # for item in data["messages"]:
+        #     prompts.append(item)
         logging.debug(f"Successfully read conversation {filename}")
     except Exception as e:
         logging.error(f"Error occurred: {e}")
