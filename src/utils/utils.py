@@ -30,7 +30,7 @@ Prompt = List[dict]
 BOT_NAME = "Blocky"
 
 SYS_MESS = []
-LOG_PATH = "log/"
+LOG_PATH = os.getenv("LOGPATH")
 RANDOM_ACTION = [
     SendMessageRecordVideoAction(),
     SendMessageRecordRoundAction(),
