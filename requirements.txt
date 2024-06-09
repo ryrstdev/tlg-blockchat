@@ -1,6 +1,7 @@
 openai
 telethon
 fastapi
+gunicorn
 uvicorn
 python-dotenv
 duckduckgo_search
