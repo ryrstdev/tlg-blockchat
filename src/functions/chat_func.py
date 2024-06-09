@@ -19,32 +19,6 @@ from src.utils import (
 )
 from telethon.events import NewMessage
 
-
-async def over_token(
-    num_tokens: int, event: NewMessage, prompt: Prompt, filename: str
-) -> None:
-    try:
-        await event.reply(
-            f"**Reach {num_tokens} tokens**, exceeds 4096, creating new chat"
-        )
-        prompt.append({"role": "user", "content": "summarize this conversation"})
-        client = OpenAI(
-            base_url="https://blockchatapi.azurewebsites.net/" 
-        )
-        completion = client.chat.completions.create(
-            model="gpt-1337-turbo-pro-max",
-            messages=prompt
-        )
-        response = completion.choices[0].message.content
-        data = {"messages": SYS_MESS}
-        data["messages"].append({"role": "system", "content": response})
-        with open(filename, "w") as f:
-            json.dump(data, f, indent=4)
-        logging.debug(f"Successfully handle overtoken")
-    except Exception as e:
-        logging.error(f"Error occurred: {e}")
-        await event.reply("An error occurred: {}".format(str(e)))
-
 async def generate_sid(
     event: NewMessage, message: str, chat_id: int
 ) -> Tuple[str, Prompt]:
@@ -86,7 +60,8 @@ def get_response(prompt: Prompt, filename: str) -> List[str]:
     try:
         #client = OpenAI()
         client = OpenAI(
-            base_url="https://blockchatapi.azurewebsites.net/"
+            #base_url="https://blockchatapi.azurewebsites.net/"
+            base_url = "http://localhost:8000"
         )
         completion = client.chat.completions.create(
             model="gpt-1337-turbo-pro-max",
@@ -95,9 +70,7 @@ def get_response(prompt: Prompt, filename: str) -> List[str]:
         logging.info(completion.choices[0].message)
         result = completion.choices[0].message
         num_tokens = completion.usage.total_tokens
-        #num_tokens = 0
         responses = f"{result.content}\n\n__({num_tokens} tokens used)__"
-        #responses = f"{result.content}"
         prompt.append({"role": result.role, "content": result.content})
         data = {"messages": prompt}
         with open(filename, "w") as f:

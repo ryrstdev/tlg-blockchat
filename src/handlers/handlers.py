@@ -23,15 +23,6 @@ async def security_check(event: NewMessage) -> None:
 
 @register(NewMessage(pattern="/clear"))
 async def clear_handler(event: NewMessage) -> None:
-    # client = event.client
-    # event.text = event.chat_id
-    # response = await clearmsg(event)
-    # try:
-    #     await client.send_message(event.chat_id, f"{response}")
-    #     logging.info(f"Sent /clear to {event.chat_id}")
-    # except Exception as e:
-    #     logging.error(f"Error occurred while responding /bash cmd: {e}")
-    # raise StopPropagation
     chat_type, client, chat_id, message = await check_chat_type(event)
     if chat_type != "User":
         return
@@ -44,15 +35,6 @@ async def clear_handler(event: NewMessage) -> None:
 
 @register(NewMessage(pattern="/start"))
 async def start_handler(event: NewMessage) -> None:
-    # client = event.client
-    # event.text = event.chat_id
-    # response = await clearmsg(event)
-    # try:
-    #     await client.send_message(event.chat_id, f"{response}")
-    #     logging.info(f"Sent /clear to {event.chat_id}")
-    # except Exception as e:
-    #     logging.error(f"Error occurred while responding /bash cmd: {e}")
-    # raise StopPropagation
     chat_type, client, chat_id, message = await check_chat_type(event)
     if chat_type != "User":
         return
@@ -97,31 +79,3 @@ async def user_chat_handler(event: NewMessage) -> None:
         logging.error(f"Error occurred when handling user chat: {e}")
         await event.reply("**Fail to get response**")
     await client.action(chat_id, "cancel")
-
-
-@register(NewMessage(pattern="/slave"))
-async def group_chat_handler(event: NewMessage) -> None:
-    chat_type, client, chat_id, message = await check_chat_type(event)
-    if chat_type != "Group":
-        return
-    else:
-        logging.info("Check chat type Group done")
-    await client(SetTypingRequest(peer=chat_id, action=SendMessageTypingAction()))
-    filename, prompt = await start_and_check(event, message, chat_id)
-    loop = asyncio.get_event_loop()
-    future = loop.run_in_executor(None, get_response, prompt, filename)
-    while not future.done():
-        random_choice = random.choice(RANDOM_ACTION)
-        await asyncio.sleep(2)
-        await client(SetTypingRequest(peer=chat_id, action=random_choice))
-    response = await future
-    # # Get response from openai and send to chat_id
-    # response = get_response(prompt, filename)
-    try:
-        await process_and_send_mess(event, response)
-        logging.info(f"Sent message to {chat_id}")
-    except Exception as e:
-        logging.error(f"Error occurred when handling group chat: {e}")
-        await event.reply("**Fail to get response**")
-    await client.action(chat_id, "cancel")
-    raise StopPropagation

@@ -8,12 +8,8 @@ from telethon import TelegramClient
 from telethon.errors.rpcerrorlist import UnauthorizedError
 
 from src.handlers import (
-#    bash_handler,
     clear_handler,
     start_handler,
-#    cls_handler,
-#    group_chat_handler,
-#    search_handler,
     security_check,
     user_chat_handler,
 )
@@ -47,17 +43,11 @@ async def bot() -> None:
 
         client.add_event_handler(security_check)
 
-        # Search feature
-        #client.add_event_handler(search_handler)
-
-        # Terminal bash feature
-        #client.add_event_handler(bash_handler)
-
-        # Clear chat history feature
+        # Clear and Reset Session
         client.add_event_handler(clear_handler)
 
+        # Clear and Reset Session
         client.add_event_handler(start_handler)
-
 
         # User and group chat
         #client.add_event_handler(group_chat_handler)

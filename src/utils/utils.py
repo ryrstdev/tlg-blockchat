@@ -88,16 +88,7 @@ async def read_existing_conversation(chat_id: int) -> Tuple[int, int, str, Promp
             file_num = json.load(f)["session"]
         filename = f"{LOG_PATH}chats/{chat_id}_{file_num}.json"
         logging.info(filename)
-        # Create .json file in case of new chat
-        # if not os.path.exists(filename):
-        #     data = {"messages": SYS_MESS}
-        #     with open(filename, "w") as f:
-        #         json.dump(data, f, indent=4)
-        # with open(filename, "r") as f:
-        #     data = json.load(f)
         prompts = []
-        # for item in data["messages"]:
-        #     prompts.append(item)
         logging.debug(f"Successfully read conversation {filename}")
     except Exception as e:
         logging.error(f"Error occurred: {e}")
